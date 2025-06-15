@@ -15,7 +15,6 @@ import {
   ref,
   set,
   Database,
-  DatabaseReference,
 } from "firebase/database";
 
 import "./App.css";
