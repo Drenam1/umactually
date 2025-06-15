@@ -15,6 +15,7 @@ import {
   onChildRemoved,
   ref,
   set,
+  get as getFromDatabase,
   Database,
   remove,
 } from "firebase/database";
@@ -182,26 +183,24 @@ function App() {
       let lobbyId = prompt("Enter the lobby ID to join:");
       if (lobbyId) {
         lobbyId = lobbyId.trim();
+        const playerRef = ref(db, `players/${playerId}`);
         const lobbyRef = ref(db, `lobbies/${lobbyId}`);
-        onValue(lobbyRef, (snapshot) => {
-          if (snapshot.exists()) {
-            const lobbyData = snapshot.val();
-            const playerRef = ref(db, `players/${playerId}`);
-            const lobbyRef = ref(db, `lobbies/${lobbyId}`);
-            const updatedLobby = {
-              ...lobbyData,
-              players: {
-                ...lobbyData.players,
-                [playerId]: {
-                  name: player.name,
-                },
+        getFromDatabase(lobbyRef).then((snapshot) => {
+          const data = snapshot.val();
+          console.log(data);
+          const updatedLobby = {
+            ...data,
+            players: {
+              ...data.players,
+              [playerId]: {
+                name: player.name,
               },
-            };
-            set(playerRef, { ...player, lobbyId: lobbyId });
-            set(lobbyRef, { ...updatedLobby });
-            setLobby(updatedLobby);
-            setPlayer({ ...player, lobbyId: lobbyId });
-          }
+            },
+          };
+          set(playerRef, { ...player, lobbyId: lobbyId });
+          set(lobbyRef, { ...updatedLobby });
+          setLobby(updatedLobby);
+          setPlayer({ ...player, lobbyId: lobbyId });
         });
       }
     }
