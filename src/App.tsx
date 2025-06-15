@@ -1,51 +1,67 @@
 import React from "react";
-import logo from "./logo.svg";
 import GenericHelper from "./helpers/generichelper";
+import { getAuth, onAuthStateChanged, signInAnonymously } from "firebase/auth";
+import {
+  getDatabase,
+  onDisconnect,
+  onValue,
+  onChildAdded,
+  onChildRemoved,
+  onChildChanged,
+  ref,
+  set,
+} from "firebase/database";
 
-import * as FirebaseAuth from "firebase/auth";
-import * as FirebaseDatabase from "firebase/database";
 import "./App.css";
 
 function App() {
-  const playerColors = ["red", "orange", "yellow", "green", "purple"];
+  function initGame() {
+    const db = getDatabase();
+    const allPlayersRef = ref(db, `players`);
 
-  let playerId;
-  let playerRef;
-  let players = {};
-  let playerElements = {};
+    onValue(allPlayersRef, (snapshot) => {
+      // Fires whenever a change occurs
+      const players = snapshot.val() ?? {};
+      Object.keys(players).forEach((key) => {
+        const characterState = players[key];
+        console.log(`Player ${key} is ${characterState.name}`);
+      });
+    });
+    onChildAdded(allPlayersRef, (snapshot) => {
+      // Fires when a new node is added to the tree
+    });
 
-  const gameContainer = document.querySelector(".game-container");
+    onChildRemoved(allPlayersRef, (snapshot) => {
+      // Fires when a node is removed from the tree
+    });
+  }
 
-  const auth = FirebaseAuth.getAuth();
-  const db = FirebaseDatabase.getDatabase();
-  FirebaseAuth.onAuthStateChanged(auth, (user) => {
+  let playerId: any;
+
+  const auth = getAuth();
+  const db = getDatabase();
+  onAuthStateChanged(auth, (user) => {
     if (user) {
-      console.log(user);
       playerId = user.uid;
-      const playerRef = FirebaseDatabase.ref(db, `players/${playerId}`);
+      const playerRef = ref(db, `players/${playerId}`);
 
       const name = GenericHelper.createName();
 
-      FirebaseDatabase.set(playerRef, {
+      set(playerRef, {
         id: playerId,
         name: name,
-        direction: "right",
-        color: GenericHelper.randomFromArray(playerColors),
-        x: 3,
-        y: 10,
-        coins: 0,
       });
 
       // Remove me from database when I disconnect
-      FirebaseDatabase.onDisconnect(playerRef).remove();
+      onDisconnect(playerRef).remove();
 
       // Begin the game
-      //initGame();
+      initGame();
     } else {
       // You're logged out
     }
   });
-  FirebaseAuth.signInAnonymously(auth).catch((error) => {
+  signInAnonymously(auth).catch((error) => {
     const errorCode = error.code;
     const errorMessage = error.message;
     // ...
@@ -55,7 +71,6 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
