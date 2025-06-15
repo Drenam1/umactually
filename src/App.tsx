@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
 import GenericHelper from "./helpers/generichelper";
 import {
@@ -143,6 +144,16 @@ function App() {
       set(playerRef, { ...player, lobbyId: lobbyId });
       setLobby(lobbyObject);
       setPlayer({ ...player, lobbyId: lobbyId });
+      onValue(lobbyRef, (snapshot) => {
+        if (snapshot.exists()) {
+          console.log(snapshot);
+          console.log(snapshot.val());
+          const data = snapshot.val();
+          setLobby(data);
+        } else {
+          setLobby(undefined);
+        }
+      });
     }
   }
 
@@ -159,7 +170,7 @@ function App() {
         setLobby(undefined);
       } else {
         set(lobbyRef, { ...lobbyObject });
-        setLobby(lobbyObject);
+        setLobby(undefined);
       }
       set(playerRef, { ...playerObject });
       setPlayer({ ...playerObject });
@@ -188,7 +199,7 @@ function App() {
             };
             set(playerRef, { ...player, lobbyId: lobbyId });
             set(lobbyRef, { ...updatedLobby });
-            setLobby(updatedLobby);
+            //setLobby(updatedLobby);
             setPlayer({ ...player, lobbyId: lobbyId });
           }
         });

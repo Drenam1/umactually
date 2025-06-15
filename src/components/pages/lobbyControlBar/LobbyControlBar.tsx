@@ -12,9 +12,10 @@ export interface ILobbyControlBarProps {
 const LobbyControlBar: React.FunctionComponent<ILobbyControlBarProps> = (
   props
 ) => {
+  console.log(props.lobby);
   return (
     <div className="LobbyControlBar">
-      {!props.lobby && (
+      {!props.lobby ? (
         <>
           <button
             className="LobbyControlBar__button"
@@ -26,11 +27,18 @@ const LobbyControlBar: React.FunctionComponent<ILobbyControlBarProps> = (
             Join Lobby
           </button>
         </>
+      ) : (
+        <span>{`Lobby ID: ${props.player.lobbyId}`}</span>
       )}
       {props.player.lobbyId && (
         <button className="LobbyControlBar__button" onClick={props.leaveLobby}>
           Leave Lobby
         </button>
+      )}
+      {props.lobby && (
+        <span className="LobbyControlBar__lobbyInfo">
+          {`Players: ${Object.keys(props.lobby.players).length}`}
+        </span>
       )}
     </div>
   );
