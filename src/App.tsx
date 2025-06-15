@@ -199,7 +199,7 @@ function App() {
             };
             set(playerRef, { ...player, lobbyId: lobbyId });
             set(lobbyRef, { ...updatedLobby });
-            //setLobby(updatedLobby);
+            setLobby(updatedLobby);
             setPlayer({ ...player, lobbyId: lobbyId });
           }
         });
