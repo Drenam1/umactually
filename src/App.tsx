@@ -15,9 +15,11 @@ import {
   ref,
   set,
   Database,
+  remove,
 } from "firebase/database";
 
 import "./App.css";
+import LobbyControlBar from "./components/pages/lobbyControlBar/LobbyControlBar";
 
 function App() {
   const [auth, setAuth] = React.useState<Auth>();
@@ -82,7 +84,6 @@ function App() {
         .remove()
         .then(() => {
           let lobbyRef: any = undefined;
-          console.log(player);
           if (player.lobbyId) {
             // If the player already has a lobby, we can fetch it
             lobbyRef = ref(db, `lobbies/${player.lobbyId}`);
@@ -92,8 +93,7 @@ function App() {
             delete newLobbyObj.players[playerId];
             if (Object.keys(newLobbyObj.players).length === 0) {
               // If there are no players left in the lobby, remove the lobby
-              onDisconnect(lobbyRef).remove();
-              setLobby(undefined);
+              remove(lobbyRef);
             }
           }
         });
@@ -120,8 +120,6 @@ function App() {
     });
     onChildAdded(allLobbiesRef, (snapshot) => {
       // Fires when a new node is added to the tree
-      const lobbies = snapshot.val();
-      console.log(lobbies);
     });
 
     onChildRemoved(allLobbiesRef, (snapshot) => {
@@ -133,7 +131,6 @@ function App() {
       const lobbyId = GenericHelper.generateId(6);
       const lobbyRef = ref(db, `lobbies/${lobbyId}`);
       const playerRef = ref(db, `players/${playerId}`);
-      console.log(player);
       const lobbyObject = {
         id: lobbyId,
         players: {
@@ -149,9 +146,39 @@ function App() {
     }
   }
 
+  function leaveLobby() {
+    if (db) {
+      const lobbyRef = ref(db, `lobbies/${player.lobbyId}`);
+      const playerRef = ref(db, `players/${playerId}`);
+      const playerObject = { ...player, lobbyId: "" };
+      const lobbyObject = { ...lobby };
+      delete lobbyObject.players[playerId];
+      console.log(lobbyRef);
+      console.log(lobbyObject);
+      console.log(Object.keys(lobbyObject.players));
+      console.log(Object.keys(lobbyObject.players).length);
+      if (Object.keys(lobbyObject.players).length === 0) {
+        // If there are no players left in the lobby, remove the lobby
+        remove(lobbyRef);
+      } else {
+        set(lobbyRef, { ...lobbyObject });
+        setLobby(lobbyObject);
+      }
+      set(playerRef, { ...playerObject });
+      setPlayer({ ...playerObject });
+    }
+  }
+
   return (
     <header className="App-header">
-      {player && <button onClick={createLobby}>Create lobby</button>}
+      {player && (
+        <LobbyControlBar
+          createLobby={createLobby}
+          joinLobby={() => {}}
+          leaveLobby={leaveLobby}
+          player={player}
+        />
+      )}
     </header>
   );
 }

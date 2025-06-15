@@ -1,0 +1,9 @@
+.LobbyControlBar {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 5px;
+}
