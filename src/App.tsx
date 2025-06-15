@@ -15,6 +15,7 @@ import {
   ref,
   set,
   Database,
+  DatabaseReference,
 } from "firebase/database";
 
 import "./App.css";
@@ -60,7 +61,6 @@ function App() {
       set(playerRef, { ...playerObject });
 
       // Remove me from database when I disconnect
-      onDisconnect(playerRef).remove();
 
       // Begin the game
       initGame();
@@ -75,6 +75,31 @@ function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerId, db, auth]);
+
+  React.useEffect(() => {
+    if (db && player) {
+      const playerRef = ref(db, `players/${playerId}`);
+      onDisconnect(playerRef)
+        .remove()
+        .then(() => {
+          let lobbyRef: any = undefined;
+          console.log(player);
+          if (player.lobbyId) {
+            // If the player already has a lobby, we can fetch it
+            lobbyRef = ref(db, `lobbies/${player.lobbyId}`);
+          }
+          if (lobbyRef && lobby) {
+            const newLobbyObj = { ...lobby };
+            delete newLobbyObj.players[playerId];
+            if (Object.keys(newLobbyObj.players).length === 0) {
+              // If there are no players left in the lobby, remove the lobby
+              onDisconnect(lobbyRef).remove();
+              setLobby(undefined);
+            }
+          }
+        });
+    }
+  }, [db, lobby, player, playerId]);
 
   function initGame() {
     const db = getDatabase();
@@ -109,6 +134,7 @@ function App() {
       const lobbyId = GenericHelper.generateId(6);
       const lobbyRef = ref(db, `lobbies/${lobbyId}`);
       const playerRef = ref(db, `players/${playerId}`);
+      console.log(player);
       const lobbyObject = {
         id: lobbyId,
         players: {
@@ -126,7 +152,7 @@ function App() {
 
   return (
     <header className="App-header">
-      <button onClick={createLobby}>Create lobby</button>
+      {player && <button onClick={createLobby}>Create lobby</button>}
     </header>
   );
 }
