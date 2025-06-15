@@ -93,7 +93,7 @@ function App() {
             delete newLobbyObj.players[playerId];
             if (Object.keys(newLobbyObj.players).length === 0) {
               // If there are no players left in the lobby, remove the lobby
-              remove(lobbyRef);
+              onDisconnect(lobbyRef).remove();
             }
           }
         });
@@ -153,13 +153,10 @@ function App() {
       const playerObject = { ...player, lobbyId: "" };
       const lobbyObject = { ...lobby };
       delete lobbyObject.players[playerId];
-      console.log(lobbyRef);
-      console.log(lobbyObject);
-      console.log(Object.keys(lobbyObject.players));
-      console.log(Object.keys(lobbyObject.players).length);
       if (Object.keys(lobbyObject.players).length === 0) {
         // If there are no players left in the lobby, remove the lobby
         remove(lobbyRef);
+        setLobby(undefined);
       } else {
         set(lobbyRef, { ...lobbyObject });
         setLobby(lobbyObject);
@@ -169,14 +166,45 @@ function App() {
     }
   }
 
+  function joinLobby() {
+    if (db) {
+      let lobbyId = prompt("Enter the lobby ID to join:");
+      if (lobbyId) {
+        lobbyId = lobbyId.trim();
+        const lobbyRef = ref(db, `lobbies/${lobbyId}`);
+        onValue(lobbyRef, (snapshot) => {
+          if (snapshot.exists()) {
+            const lobbyData = snapshot.val();
+            const playerRef = ref(db, `players/${playerId}`);
+            const lobbyRef = ref(db, `lobbies/${lobbyId}`);
+            const updatedLobby = {
+              ...lobbyData,
+              players: {
+                ...lobbyData.players,
+                [playerId]: {
+                  name: player.name,
+                },
+              },
+            };
+            set(playerRef, { ...player, lobbyId: lobbyId });
+            set(lobbyRef, { ...updatedLobby });
+            setLobby(updatedLobby);
+            setPlayer({ ...player, lobbyId: lobbyId });
+          }
+        });
+      }
+    }
+  }
+
   return (
     <header className="App-header">
       {player && (
         <LobbyControlBar
           createLobby={createLobby}
-          joinLobby={() => {}}
+          joinLobby={joinLobby}
           leaveLobby={leaveLobby}
           player={player}
+          lobby={lobby}
         />
       )}
     </header>

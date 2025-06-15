@@ -6,6 +6,7 @@ export interface ILobbyControlBarProps {
   joinLobby: () => void;
   leaveLobby: () => void;
   player: any;
+  lobby: any;
 }
 
 const LobbyControlBar: React.FunctionComponent<ILobbyControlBarProps> = (
@@ -13,12 +14,19 @@ const LobbyControlBar: React.FunctionComponent<ILobbyControlBarProps> = (
 ) => {
   return (
     <div className="LobbyControlBar">
-      <button className="LobbyControlBar__button" onClick={props.createLobby}>
-        Create Lobby
-      </button>
-      <button className="LobbyControlBar__button" onClick={props.joinLobby}>
-        Join Lobby
-      </button>
+      {!props.lobby && (
+        <>
+          <button
+            className="LobbyControlBar__button"
+            onClick={props.createLobby}
+          >
+            Create Lobby
+          </button>
+          <button className="LobbyControlBar__button" onClick={props.joinLobby}>
+            Join Lobby
+          </button>
+        </>
+      )}
       {props.player.lobbyId && (
         <button className="LobbyControlBar__button" onClick={props.leaveLobby}>
           Leave Lobby
