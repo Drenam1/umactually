@@ -25,6 +25,7 @@ export default class LobbyHelper {
           players: {
             [playerId]: { ...player },
           },
+          started: false,
         };
         set(lobbyRef, { ...lobbyObject });
         remove(playerRef);
@@ -55,16 +56,18 @@ export default class LobbyHelper {
           getFromDatabase(lobbyRef).then((lobbySnapshot) => {
             const playerData = playerSnapshot.val();
             const lobbyData = lobbySnapshot.val();
-            const updatedLobby = {
-              ...lobbyData,
-              players: {
-                ...lobbyData.players,
-                [playerId]: { ...playerData },
-              },
-            };
-            set(lobbyRef, { ...updatedLobby });
-            remove(playerRef);
-            setLobby(updatedLobby);
+            if (!lobbyData.started) {
+              const updatedLobby = {
+                ...lobbyData,
+                players: {
+                  ...lobbyData.players,
+                  [playerId]: { ...playerData },
+                },
+              };
+              set(lobbyRef, { ...updatedLobby });
+              remove(playerRef);
+              setLobby(updatedLobby);
+            }
           });
         });
         onValue(lobbyRef, (snapshot) => {

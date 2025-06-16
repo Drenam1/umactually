@@ -6,4 +6,8 @@
   flex-direction: column;
   gap: 5px;
   padding: 5px;
+  .LobbyControlBar__playersInfo {
+    display: flex;
+    flex-direction: column;
+  }
 }

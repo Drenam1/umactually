@@ -53,6 +53,8 @@ function App() {
       const playerObject = {
         id: playerId,
         name: name,
+        question: "",
+        points: 0,
       };
 
       setPlayer(playerObject);
@@ -82,9 +84,9 @@ function App() {
         .remove()
         .then(() => {
           let lobbyRef: any = undefined;
-          if (player.lobbyId) {
+          if (lobby) {
             // If the player already has a lobby, we can fetch it
-            lobbyRef = ref(db, `lobbies/${player.lobbyId}`);
+            lobbyRef = ref(db, `lobbies/${lobby.id}`);
           }
           if (lobbyRef && lobby) {
             const newLobbyObj = { ...lobby };
@@ -107,7 +109,6 @@ function App() {
           leaveLobby={() =>
             LobbyHelper.leaveLobby(db, playerId, lobby, setLobby)
           }
-          player={player}
           lobby={lobby}
         />
       )}
