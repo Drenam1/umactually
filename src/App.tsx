@@ -56,7 +56,6 @@ function App() {
       const playerObject = {
         id: playerId,
         name: name,
-        lobbyId: "",
       };
 
       setPlayer(playerObject);
@@ -133,48 +132,49 @@ function App() {
       const lobbyId = GenericHelper.generateId(6);
       const lobbyRef = ref(db, `lobbies/${lobbyId}`);
       const playerRef = ref(db, `players/${playerId}`);
-      const lobbyObject = {
-        id: lobbyId,
-        players: {
-          [playerId]: {
-            name: player.name,
+      getFromDatabase(playerRef).then((snapshot) => {
+        const player = snapshot.val();
+        const lobbyObject = {
+          id: lobbyId,
+          players: {
+            [playerId]: { ...player },
           },
-        },
-      };
-      set(lobbyRef, { ...lobbyObject });
-      set(playerRef, { ...player, lobbyId: lobbyId });
-      setLobby(lobbyObject);
-      setPlayer({ ...player, lobbyId: lobbyId });
-      onValue(lobbyRef, (snapshot) => {
-        if (snapshot.exists()) {
-          console.log(snapshot);
-          console.log(snapshot.val());
-          const data = snapshot.val();
-          setLobby(data);
-        } else {
-          setLobby(undefined);
-        }
+        };
+        set(lobbyRef, { ...lobbyObject });
+        remove(playerRef);
+        setLobby(lobbyObject);
+        onValue(lobbyRef, (snapshot) => {
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            setLobby(data);
+          } else {
+            setLobby(undefined);
+          }
+        });
       });
     }
   }
 
   function leaveLobby() {
     if (db) {
-      const lobbyRef = ref(db, `lobbies/${player.lobbyId}`);
-      const playerRef = ref(db, `players/${playerId}`);
-      const playerObject = { ...player, lobbyId: "" };
-      const lobbyObject = { ...lobby };
-      delete lobbyObject.players[playerId];
-      if (Object.keys(lobbyObject.players).length === 0) {
-        // If there are no players left in the lobby, remove the lobby
-        remove(lobbyRef);
-        setLobby(undefined);
-      } else {
-        set(lobbyRef, { ...lobbyObject });
-        setLobby(undefined);
-      }
-      set(playerRef, { ...playerObject });
-      setPlayer({ ...playerObject });
+      const lobbyRef = ref(db, `lobbies/${lobby.id}`);
+      const playerRef = ref(db, `lobbies/${lobby.id}/players/${playerId}`);
+      getFromDatabase(playerRef).then((snapshot) => {
+        const playerData = snapshot.val();
+        const lobbyObject = { ...lobby };
+        remove(playerRef);
+        const newPlayerRef = ref(db, `players/${playerId}`);
+        set(newPlayerRef, { ...playerData });
+        delete lobbyObject.players[playerId];
+        if (Object.keys(lobbyObject.players).length === 0) {
+          // If there are no players left in the lobby, remove the lobby
+          remove(lobbyRef);
+          setLobby(undefined);
+        } else {
+          set(lobbyRef, { ...lobbyObject });
+          setLobby(undefined);
+        }
+      });
     }
   }
 
@@ -185,22 +185,31 @@ function App() {
         lobbyId = lobbyId.trim();
         const playerRef = ref(db, `players/${playerId}`);
         const lobbyRef = ref(db, `lobbies/${lobbyId}`);
-        getFromDatabase(lobbyRef).then((snapshot) => {
-          const data = snapshot.val();
-          console.log(data);
-          const updatedLobby = {
-            ...data,
-            players: {
-              ...data.players,
-              [playerId]: {
-                name: player.name,
+        getFromDatabase(playerRef).then((playerSnapshot) => {
+          getFromDatabase(lobbyRef).then((lobbySnapshot) => {
+            const playerData = playerSnapshot.val();
+            const lobbyData = lobbySnapshot.val();
+            const updatedLobby = {
+              ...lobbyData,
+              players: {
+                ...lobbyData.players,
+                [playerId]: {
+                  name: playerData,
+                },
               },
-            },
-          };
-          set(playerRef, { ...player, lobbyId: lobbyId });
-          set(lobbyRef, { ...updatedLobby });
-          setLobby(updatedLobby);
-          setPlayer({ ...player, lobbyId: lobbyId });
+            };
+            set(lobbyRef, { ...updatedLobby });
+            remove(playerRef);
+            setLobby(updatedLobby);
+          });
+        });
+        onValue(lobbyRef, (snapshot) => {
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            setLobby(data);
+          } else {
+            setLobby(undefined);
+          }
         });
       }
     }

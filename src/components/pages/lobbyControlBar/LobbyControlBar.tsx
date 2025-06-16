@@ -12,7 +12,6 @@ export interface ILobbyControlBarProps {
 const LobbyControlBar: React.FunctionComponent<ILobbyControlBarProps> = (
   props
 ) => {
-  console.log(props.lobby);
   return (
     <div className="LobbyControlBar">
       {!props.lobby ? (
@@ -28,9 +27,9 @@ const LobbyControlBar: React.FunctionComponent<ILobbyControlBarProps> = (
           </button>
         </>
       ) : (
-        <span>{`Lobby ID: ${props.player.lobbyId}`}</span>
+        <span>{`Lobby ID: ${props.lobby.id}`}</span>
       )}
-      {props.player.lobbyId && (
+      {props.lobby && (
         <button className="LobbyControlBar__button" onClick={props.leaveLobby}>
           Leave Lobby
         </button>
