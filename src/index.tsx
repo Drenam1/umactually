@@ -5,7 +5,7 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { firebaseConfig } from "../.config/secrets";
+import { firebaseConfig } from "./.config/secrets";
 
 // Initialize Firebase
 initializeApp(firebaseConfig);
