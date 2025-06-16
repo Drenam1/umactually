@@ -7,7 +7,7 @@ import reportWebVitals from "./reportWebVitals";
 import { initializeApp } from "firebase/app";
 
 const firebaseConfig = {
-  apiKey: process.env.GOOGLE_API_KEY,
+  apiKey: `${process.env.GOOGLE_API_KEY}`,
   authDomain: "umactually-925d4.firebaseapp.com",
   databaseURL: "https://umactually-925d4-default-rtdb.firebaseio.com",
   projectId: "umactually-925d4",
