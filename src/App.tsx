@@ -22,6 +22,7 @@ import {
 
 import "./App.css";
 import LobbyControlBar from "./components/pages/lobbyControlBar/LobbyControlBar";
+import LobbyHelper from "./helpers/lobbyHelper";
 
 function App() {
   const [auth, setAuth] = React.useState<Auth>();
@@ -92,7 +93,7 @@ function App() {
           if (lobbyRef && lobby) {
             const newLobbyObj = { ...lobby };
             delete newLobbyObj.players[playerId];
-            if (Object.keys(newLobbyObj.players).length === 0) {
+            if (Object.keys(newLobbyObj.players ?? {}).length === 0) {
               // If there are no players left in the lobby, remove the lobby
               onDisconnect(lobbyRef).remove();
             }
@@ -127,101 +128,16 @@ function App() {
       // Fires when a node is removed from the tree
     });
   }
-  function createLobby() {
-    if (db) {
-      const lobbyId = GenericHelper.generateId(6);
-      const lobbyRef = ref(db, `lobbies/${lobbyId}`);
-      const playerRef = ref(db, `players/${playerId}`);
-      getFromDatabase(playerRef).then((snapshot) => {
-        const player = snapshot.val();
-        const lobbyObject = {
-          id: lobbyId,
-          players: {
-            [playerId]: { ...player },
-          },
-        };
-        set(lobbyRef, { ...lobbyObject });
-        remove(playerRef);
-        setLobby(lobbyObject);
-        onValue(lobbyRef, (snapshot) => {
-          if (snapshot.exists()) {
-            const data = snapshot.val();
-            setLobby(data);
-          } else {
-            setLobby(undefined);
-          }
-        });
-      });
-    }
-  }
-
-  function leaveLobby() {
-    if (db) {
-      const lobbyRef = ref(db, `lobbies/${lobby.id}`);
-      const playerRef = ref(db, `lobbies/${lobby.id}/players/${playerId}`);
-      getFromDatabase(playerRef).then((snapshot) => {
-        const playerData = snapshot.val();
-        const lobbyObject = { ...lobby };
-        remove(playerRef);
-        const newPlayerRef = ref(db, `players/${playerId}`);
-        set(newPlayerRef, { ...playerData });
-        delete lobbyObject.players[playerId];
-        if (Object.keys(lobbyObject.players).length === 0) {
-          // If there are no players left in the lobby, remove the lobby
-          remove(lobbyRef);
-          setLobby(undefined);
-        } else {
-          set(lobbyRef, { ...lobbyObject });
-          setLobby(undefined);
-        }
-      });
-    }
-  }
-
-  function joinLobby() {
-    if (db) {
-      let lobbyId = prompt("Enter the lobby ID to join:");
-      if (lobbyId) {
-        lobbyId = lobbyId.trim();
-        const playerRef = ref(db, `players/${playerId}`);
-        const lobbyRef = ref(db, `lobbies/${lobbyId}`);
-        getFromDatabase(playerRef).then((playerSnapshot) => {
-          getFromDatabase(lobbyRef).then((lobbySnapshot) => {
-            const playerData = playerSnapshot.val();
-            const lobbyData = lobbySnapshot.val();
-            const updatedLobby = {
-              ...lobbyData,
-              players: {
-                ...lobbyData.players,
-                [playerId]: {
-                  name: playerData,
-                },
-              },
-            };
-            set(lobbyRef, { ...updatedLobby });
-            remove(playerRef);
-            setLobby(updatedLobby);
-          });
-        });
-        onValue(lobbyRef, (snapshot) => {
-          if (snapshot.exists()) {
-            const data = snapshot.val();
-            setLobby(data);
-          } else {
-            setLobby(undefined);
-          }
-        });
-      }
-    }
-  }
 
   return (
     <header className="App-header">
       {player && (
         <LobbyControlBar
-          createLobby={createLobby}
-          joinLobby={joinLobby}
-          leaveLobby={leaveLobby}
+          createLobby={() => LobbyHelper.createLobby(db, playerId, setLobby)}
+          joinLobby={() => LobbyHelper.joinLobby(db, playerId, setLobby)}
+          leaveLobby={() =>
+            LobbyHelper.leaveLobby(db, playerId, lobby, setLobby)
+          }
           player={player}
           lobby={lobby}
         />
