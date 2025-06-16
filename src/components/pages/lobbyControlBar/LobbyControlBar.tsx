@@ -5,15 +5,30 @@ export interface ILobbyControlBarProps {
   createLobby: () => void;
   joinLobby: () => void;
   leaveLobby: () => void;
+  updatePlayerName: (name: string) => void;
   lobby: any;
+  player: any;
 }
 
 const LobbyControlBar: React.FunctionComponent<ILobbyControlBarProps> = (
   props
 ) => {
   console.log("LobbyControlBar props:", props);
+  const [playerObj, setPlayerObj] = React.useState<any>(props.player);
   return (
     <div className="LobbyControlBar">
+      <button
+        onClick={() => {
+          let newName = prompt("Enter your name:");
+          if (newName) {
+            props.updatePlayerName(newName.trim());
+            setPlayerObj({ ...playerObj, name: newName.trim() });
+          }
+        }}
+        style={{ padding: "5px 10px", cursor: "pointer" }}
+      >
+        <span>{playerObj.name}</span>
+      </button>
       {!props.lobby ? (
         <>
           <button
@@ -27,7 +42,7 @@ const LobbyControlBar: React.FunctionComponent<ILobbyControlBarProps> = (
           </button>
         </>
       ) : (
-        <span>{`Lobby ID: ${props.lobby.id}`}</span>
+        <span>{`${props.lobby.id}`}</span>
       )}
       {props.lobby && (
         <button className="LobbyControlBar__button" onClick={props.leaveLobby}>

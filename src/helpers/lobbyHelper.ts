@@ -49,7 +49,7 @@ export default class LobbyHelper {
     if (db) {
       let lobbyId = prompt("Enter the lobby ID to join:");
       if (lobbyId) {
-        lobbyId = lobbyId.trim();
+        lobbyId = lobbyId.trim().toLowerCase();
         const playerRef = ref(db, `players/${playerId}`);
         const lobbyRef = ref(db, `lobbies/${lobbyId}`);
         getFromDatabase(playerRef).then((playerSnapshot) => {

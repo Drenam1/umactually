@@ -1,3 +1,4 @@
+import { ref, set, Database } from "@firebase/database";
 export interface Clock {
   name: string;
   description: string;
@@ -47,11 +48,38 @@ export default class GenericHelper {
 
   public static generateId(length: number) {
     let result = "";
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const characters = "abcdefghijklmnopqrstvwxyz0123456789";
     const charactersLength = characters.length;
     for (let i = 0; i < length; i++) {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
+  }
+
+  public static updatePlayer(
+    db: Database,
+    playerId: string,
+    playerObject: any,
+    lobbyObject?: any
+  ) {
+    if (db) {
+      if (lobbyObject) {
+        const lobbyRef = ref(
+          db,
+          `lobbies/${lobbyObject.id}/players/${playerId}`
+        );
+        set(lobbyRef, { ...playerObject });
+      } else {
+        const playerRef = ref(db, `players/${playerId}`);
+        set(playerRef, { ...playerObject });
+      }
+    }
+  }
+
+  public static updateLobby(db: Database, lobbyObject?: any) {
+    if (db && lobbyObject) {
+      const lobbyRef = ref(db, `lobbies/${lobbyObject.id}}`);
+      set(lobbyRef, { ...lobbyObject });
+    }
   }
 }

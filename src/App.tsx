@@ -14,11 +14,10 @@ import {
   set,
   Database,
 } from "firebase/database";
-
-import "./App.css";
 import LobbyControlBar from "./components/pages/lobbyControlBar/LobbyControlBar";
 import LobbyHelper from "./helpers/lobbyHelper";
 import GameHelper from "./helpers/gameHelper";
+import "./App.css";
 
 function App() {
   const [auth, setAuth] = React.useState<Auth>();
@@ -110,6 +109,17 @@ function App() {
             LobbyHelper.leaveLobby(db, playerId, lobby, setLobby)
           }
           lobby={lobby}
+          player={player}
+          updatePlayerName={(name: string) => {
+            if (db) {
+              GenericHelper.updatePlayer(
+                db,
+                playerId,
+                { ...player, name },
+                lobby
+              );
+            }
+          }}
         />
       )}
     </header>
