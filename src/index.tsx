@@ -6,15 +6,27 @@ import reportWebVitals from "./reportWebVitals";
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 
+const {
+  REACT_APP_FIREBASE_API_KEY,
+  REACT_APP_FIREBASE_AUTH_DOMAIN,
+  REACT_APP_FIREBASE_PROJECT_ID,
+  REACT_APP_FIREBASE_STORAGE_BUCKET,
+  REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  REACT_APP_FIREBASE_APP_ID,
+  REACT_APP_FIREBASE_MEASUREMEMT_ID,
+} = process.env;
+
+console.log(process.env);
+
 const firebaseConfig = {
-  apiKey: `${process.env.GOOGLE_API_KEY}`,
-  authDomain: "umactually-925d4.firebaseapp.com",
+  apiKey: REACT_APP_FIREBASE_API_KEY,
+  authDomain: REACT_APP_FIREBASE_AUTH_DOMAIN,
   databaseURL: "https://umactually-925d4-default-rtdb.firebaseio.com",
-  projectId: "umactually-925d4",
-  storageBucket: "umactually-925d4.firebasestorage.app",
-  messagingSenderId: "44152076569",
-  appId: "1:44152076569:web:d994024c8ca5ded76dad88",
-  measurementId: "G-K77MMQHNJG",
+  projectId: REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: REACT_APP_FIREBASE_APP_ID,
+  measurementId: REACT_APP_FIREBASE_MEASUREMEMT_ID,
 };
 
 // Initialize Firebase
