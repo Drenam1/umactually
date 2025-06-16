@@ -5,7 +5,13 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { firebaseConfig as secretConfig } from "./secrets";
+
+let secretConfig: any = {};
+try {
+  secretConfig = require("./secrets").firebaseConfig;
+} catch {
+  secretConfig = {};
+}
 
 const {
   REACT_APP_FIREBASE_API_KEY,
