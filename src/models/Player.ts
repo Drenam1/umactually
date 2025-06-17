@@ -1,5 +1,6 @@
 export interface Player {
   id: string;
-  lobbyId: string;
   name: string;
+  question: string;
+  points: number;
 }

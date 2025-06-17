@@ -11,71 +11,52 @@ import GenericHelper from "./generichelper";
 export default class LobbyHelper {
   public static createLobby(
     db: Database | undefined,
-    playerId: string,
-    setLobby: (lobbyObject: any) => void
+    player: any,
+    setLobbyId: (lobbyId: string) => void
   ) {
     if (db) {
+      console.log(player);
       const lobbyId = GenericHelper.generateId(6);
       const lobbyRef = ref(db, `lobbies/${lobbyId}`);
-      const playerRef = ref(db, `players/${playerId}`);
-      getFromDatabase(playerRef).then((snapshot: any) => {
-        const player = snapshot.val();
-        const lobbyObject = {
-          id: lobbyId,
-          players: {
-            [playerId]: { ...player },
-          },
-          started: false,
-        };
-        set(lobbyRef, { ...lobbyObject });
-        remove(playerRef);
-        setLobby(lobbyObject);
-        onValue(lobbyRef, (snapshot) => {
-          if (snapshot.exists()) {
-            const data = snapshot.val();
-            setLobby(data);
-          } else {
-            setLobby(undefined);
-          }
-        });
-      });
+      const playerRef = ref(db, `players/${player.id}`);
+      const lobbyObject = {
+        id: lobbyId,
+        players: {
+          [player.id]: { ...player, points: 0 },
+        },
+        started: false,
+      };
+      set(lobbyRef, { ...lobbyObject });
+      remove(playerRef);
+      setLobbyId(lobbyId);
     }
   }
   public static joinLobby(
     db: Database | undefined,
-    playerId: string,
-    setLobby: (lobbyObject: any) => void
+    player: any,
+    setLobbyId: (lobbyId: string) => void
   ) {
     if (db) {
       let lobbyId = prompt("Enter the lobby ID to join:");
       if (lobbyId) {
         lobbyId = lobbyId.trim().toLowerCase();
-        const playerRef = ref(db, `players/${playerId}`);
+        const playerRef = ref(db, `players/${player.id}`);
         const lobbyRef = ref(db, `lobbies/${lobbyId}`);
-        getFromDatabase(playerRef).then((playerSnapshot) => {
-          getFromDatabase(lobbyRef).then((lobbySnapshot) => {
-            const playerData = playerSnapshot.val();
-            const lobbyData = lobbySnapshot.val();
-            if (!lobbyData.started) {
-              const updatedLobby = {
-                ...lobbyData,
-                players: {
-                  ...lobbyData.players,
-                  [playerId]: { ...playerData },
-                },
-              };
-              set(lobbyRef, { ...updatedLobby });
-              remove(playerRef);
-              setLobby(updatedLobby);
+        getFromDatabase(lobbyRef).then((lobbySnapshot) => {
+          const lobbyData = lobbySnapshot.val();
+          if (!lobbyData?.started) {
+            const updatedLobby = {
+              ...lobbyData,
+              players: {
+                ...lobbyData.players,
+                [player.id]: { ...player, points: 0 },
+              },
+            };
+            set(lobbyRef, { ...updatedLobby });
+            remove(playerRef);
+            if (lobbyId) {
+              setLobbyId(lobbyId);
             }
-          });
-        });
-        onValue(lobbyRef, (snapshot) => {
-          if (snapshot.exists()) {
-            const data = snapshot.val();
-            setLobby(data);
-          } else {
-            setLobby(undefined);
           }
         });
       }
@@ -83,28 +64,23 @@ export default class LobbyHelper {
   }
   public static leaveLobby(
     db: Database | undefined,
-    playerId: string,
+    player: any,
     lobby: any,
-    setLobby: (lobbyObject: any) => void
+    setLobbyId: (setLobbyId: string) => void
   ) {
     if (db) {
-      const lobbyRef = ref(db, `lobbies/${lobby.id}`);
-      const playerRef = ref(db, `lobbies/${lobby.id}/players/${playerId}`);
-      getFromDatabase(playerRef).then((snapshot) => {
-        const playerData = snapshot.val();
-        const lobbyObject = { ...lobby };
-        remove(playerRef);
-        const newPlayerRef = ref(db, `players/${playerId}`);
-        set(newPlayerRef, { ...playerData });
-        delete lobbyObject.players[playerId];
-        if (Object.keys(lobbyObject.players ?? {}).length === 0) {
-          // If there are no players left in the lobby, remove the lobby
+      const playerRef = ref(db, `lobbies/${lobby.id}/players/${player.id}`);
+      const lobbyPlayersRef = ref(db, `lobbies/${lobby.id}/players`);
+      remove(playerRef);
+      const newPlayerRef = ref(db, `players/${player.id}`);
+      set(newPlayerRef, { ...player, points: 0 });
+      getFromDatabase(lobbyPlayersRef).then((snapshot) => {
+        const playersData = snapshot.val();
+        if (!playersData || Object.keys(playersData).length === 0) {
+          const lobbyRef = ref(db, `lobbies/${lobby.id}`);
           remove(lobbyRef);
-          setLobby(undefined);
-        } else {
-          set(lobbyRef, { ...lobbyObject });
-          setLobby(undefined);
         }
+        setLobbyId("");
       });
     }
   }

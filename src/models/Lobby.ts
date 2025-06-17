@@ -1,4 +1,5 @@
 export interface Lobby {
   id: string;
-  players: any[];
+  players: any;
+  started: boolean;
 }

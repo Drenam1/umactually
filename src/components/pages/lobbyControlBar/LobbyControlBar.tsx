@@ -13,8 +13,8 @@ export interface ILobbyControlBarProps {
 const LobbyControlBar: React.FunctionComponent<ILobbyControlBarProps> = (
   props
 ) => {
-  console.log("LobbyControlBar props:", props);
   const [playerObj, setPlayerObj] = React.useState<any>(props.player);
+  console.log(props);
   return (
     <div className="LobbyControlBar">
       <button
@@ -52,9 +52,9 @@ const LobbyControlBar: React.FunctionComponent<ILobbyControlBarProps> = (
       {props.lobby && (
         <>
           <span className="LobbyControlBar__lobbyInfo">
-            {`Players: ${Object.keys(props.lobby.players ?? {}).length}`}
+            {`Players: ${Object.keys(props.lobby.players ?? {})?.length}`}
           </span>
-          {Object.keys(props.lobby.players ?? {}).length > 0 && (
+          {Object.keys(props.lobby.players ?? {})?.length > 0 && (
             <div className="LobbyControlBar__playersInfo">
               {Object.entries(props.lobby.players as any[]).map(
                 ([key, player]) => (
