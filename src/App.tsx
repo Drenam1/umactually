@@ -15,7 +15,6 @@ import {
   set,
   Database,
   onValue,
-  remove,
 } from "firebase/database";
 import LobbyControlBar from "./components/pages/lobbyControlBar/LobbyControlBar";
 import LobbyHelper from "./helpers/lobbyHelper";

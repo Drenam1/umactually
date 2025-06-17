@@ -3,7 +3,6 @@ import {
   get as getFromDatabase,
   set,
   remove,
-  onValue,
   Database,
 } from "@firebase/database";
 import GenericHelper from "./generichelper";
