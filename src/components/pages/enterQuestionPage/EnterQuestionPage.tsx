@@ -1,13 +1,5 @@
 import { Question } from "../../../models/Question";
-import {
-  getDatabase,
-  onDisconnect,
-  onValue,
-  onChildAdded,
-  onChildRemoved,
-  ref,
-  set,
-} from "firebase/database";
+import { getDatabase, ref, set } from "firebase/database";
 
 export interface IEnterQuestionPageProps {}
 

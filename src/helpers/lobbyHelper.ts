@@ -4,8 +4,11 @@ import {
   set,
   remove,
   Database,
+  onValue,
 } from "@firebase/database";
 import GenericHelper from "./generichelper";
+import { Lobby } from "../models/Lobby";
+import { Player } from "../models/Player";
 
 export default class LobbyHelper {
   public static createLobby(
@@ -79,6 +82,27 @@ export default class LobbyHelper {
           remove(lobbyRef);
         }
         setLobbyId("");
+      });
+    }
+  }
+
+  public static subscribeToPlayer(
+    db: Database,
+    lobby: Lobby | undefined,
+    playerId: string,
+    setPlayer: (player: Player | undefined) => void
+  ) {
+    const playerRef = lobby
+      ? ref(db, `lobbies/${lobby.id}/players/${playerId}`)
+      : ref(db, `players/${playerId}`);
+    if (db && playerRef) {
+      onValue(playerRef, (snapshot) => {
+        const playerData = snapshot.val();
+        if (playerData) {
+          setPlayer(playerData as Player);
+        } else {
+          setPlayer(undefined);
+        }
       });
     }
   }

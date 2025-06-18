@@ -15,12 +15,12 @@ import {
   Database,
   onValue,
 } from "firebase/database";
-import LobbyControlBar from "./components/pages/lobbyControlBar/LobbyControlBar";
 import LobbyHelper from "./helpers/lobbyHelper";
 import GameHelper from "./helpers/gameHelper";
 import "./App.css";
 import { Player } from "./models/Player";
 import { Lobby } from "./models/Lobby";
+import StartPage from "./components/pages/startPage/StartPage";
 
 function App() {
   const [auth, setAuth] = React.useState<Auth>();
@@ -41,19 +41,7 @@ function App() {
     if (!playerId) {
       setPlayer(undefined);
     } else if (db) {
-      const playerRef = lobby
-        ? ref(db, `lobbies/${lobby.id}/players/${playerId}`)
-        : ref(db, `players/${playerId}`);
-      if (db && playerRef) {
-        onValue(playerRef, (snapshot) => {
-          const playerData = snapshot.val();
-          if (playerData) {
-            setPlayer(playerData as Player);
-          } else {
-            setPlayer(undefined);
-          }
-        });
-      }
+      LobbyHelper.subscribeToPlayer(db, lobby, playerId, setPlayer);
     }
   }, [playerId, db, lobby]);
 
@@ -163,39 +151,13 @@ function App() {
 
   return (
     <header className="App-header">
-      {player && (
-        <LobbyControlBar
-          createLobby={() => LobbyHelper.createLobby(db, player, setLobbyId)}
-          joinLobby={() => LobbyHelper.joinLobby(db, player, setLobbyId)}
-          leaveLobby={() =>
-            LobbyHelper.leaveLobby(db, player, lobby, setLobbyId)
-          }
-          lobby={lobby}
+      {db && player && (
+        <StartPage
+          db={db}
           player={player}
-          updatePlayerName={(name: string) => {
-            if (db) {
-              GenericHelper.updatePlayer(
-                db,
-                playerId,
-                { ...player, name },
-                lobby
-              );
-            }
-          }}
+          lobby={lobby}
+          setLobbyId={setLobbyId}
         />
-      )}
-      {player && lobby && lobby?.players?.length > 1 && (
-        <div className="lobby-info">
-          <h2>Lobby: {lobby.id}</h2>
-          <p>Players:</p>
-          <ul>
-            {Object.values(lobby.players).map((p: any) => (
-              <li key={p.id}>
-                {p.name} (Points: {p.points})
-              </li>
-            ))}
-          </ul>
-        </div>
       )}
     </header>
   );

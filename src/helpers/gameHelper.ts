@@ -4,7 +4,9 @@ import {
   onChildRemoved,
   onValue,
   ref,
+  set,
 } from "@firebase/database";
+import { Lobby } from "../models/Lobby";
 
 export default class GameHelper {
   public static initGame() {
@@ -32,5 +34,10 @@ export default class GameHelper {
     onChildRemoved(allLobbiesRef, (snapshot) => {
       // Fires when a node is removed from the tree
     });
+  }
+
+  public static startGame(db: any, lobby: Lobby) {
+    const lobbyRef = ref(db, `lobbies/${lobby.id}`);
+    set(lobbyRef, { ...lobby, started: true });
   }
 }
