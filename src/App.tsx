@@ -41,25 +41,22 @@ function App() {
   React.useEffect(() => {
     if (!playerId) {
       setPlayer(undefined);
-    } else {
-      const playerRef = db && ref(db, `players/${playerId}`);
+    } else if (db) {
+      const playerRef = lobby
+        ? ref(db, `lobbies/${lobby.id}/players/${playerId}`)
+        : ref(db, `players/${playerId}`);
       if (db && playerRef) {
-        getFromDatabase(playerRef).then((snapshot) => {
-          const playerData = snapshot.val();
-          if (playerData) {
-            setPlayer(playerData as Player);
-          }
-        });
-
         onValue(playerRef, (snapshot) => {
           const playerData = snapshot.val();
           if (playerData) {
             setPlayer(playerData as Player);
+          } else {
+            setPlayer(undefined);
           }
         });
       }
     }
-  }, [playerId, db]);
+  }, [playerId, db, lobby]);
 
   React.useEffect(() => {
     if (!lobbyId) {
@@ -67,17 +64,12 @@ function App() {
     } else {
       const lobbyRef = db && ref(db, `lobbies/${lobbyId}`);
       if (db && lobbyRef) {
-        getFromDatabase(lobbyRef).then((snapshot) => {
-          const lobbyData = snapshot.val();
-          if (lobbyData) {
-            setLobby(lobbyData as Lobby);
-          }
-        });
-
         onValue(lobbyRef, (snapshot) => {
           const lobbyData = snapshot.val();
           if (lobbyData) {
             setLobby(lobbyData as Lobby);
+          } else {
+            setLobby(undefined);
           }
         });
       }

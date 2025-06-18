@@ -14,7 +14,6 @@ export default class LobbyHelper {
     setLobbyId: (lobbyId: string) => void
   ) {
     if (db) {
-      console.log(player);
       const lobbyId = GenericHelper.generateId(6);
       const lobbyRef = ref(db, `lobbies/${lobbyId}`);
       const playerRef = ref(db, `players/${player.id}`);

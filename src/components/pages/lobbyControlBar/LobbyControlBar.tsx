@@ -14,7 +14,7 @@ const LobbyControlBar: React.FunctionComponent<ILobbyControlBarProps> = (
   props
 ) => {
   const [playerObj, setPlayerObj] = React.useState<any>(props.player);
-  console.log(props);
+
   return (
     <div className="LobbyControlBar">
       <button
