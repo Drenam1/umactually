@@ -10,7 +10,6 @@ import {
 import {
   getDatabase,
   onDisconnect,
-  get as getFromDatabase,
   ref,
   set,
   Database,
