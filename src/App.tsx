@@ -156,6 +156,7 @@ function App() {
   const questionsArray = lobby?.players
     ? Object.values(lobby.players).map((p: any) => p.question)
     : [];
+  console.log("Questions Array:", questionsArray);
 
   return (
     <>
