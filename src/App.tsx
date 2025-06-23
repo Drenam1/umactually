@@ -21,6 +21,8 @@ import "./App.css";
 import { Player } from "./models/Player";
 import { Lobby } from "./models/Lobby";
 import StartPage from "./components/pages/startPage/StartPage";
+import LobbyControlBar from "./components/lobbyControlBar/LobbyControlBar";
+import EnterQuestionPage from "./components/pages/enterQuestionPage/EnterQuestionPage";
 
 function App() {
   const [auth, setAuth] = React.useState<Auth>();
@@ -149,17 +151,49 @@ function App() {
     }
   }, [db, lobby, player, playerId]);
 
+  console.log(player);
+  console.log(lobby);
+  const questionsArray = lobby?.players
+    ? Object.values(lobby.players).map((p: any) => p.question)
+    : [];
+
   return (
-    <header className="App-header">
+    <>
       {db && player && (
-        <StartPage
-          db={db}
-          player={player}
-          lobby={lobby}
-          setLobbyId={setLobbyId}
-        />
+        <header className="App-header">
+          <LobbyControlBar
+            createLobby={() => LobbyHelper.createLobby(db, player, setLobbyId)}
+            joinLobby={() => LobbyHelper.joinLobby(db, player, setLobbyId)}
+            leaveLobby={() =>
+              LobbyHelper.leaveLobby(db, player, lobby, setLobbyId)
+            }
+            lobby={lobby}
+            player={player}
+            updatePlayerName={(name: string) => {
+              if (db) {
+                GenericHelper.updatePlayer(
+                  db,
+                  player.id,
+                  { ...player, name },
+                  lobby
+                );
+              }
+            }}
+          />
+          {lobby && !lobby.started && (
+            <StartPage
+              db={db}
+              player={player}
+              lobby={lobby}
+              setLobbyId={setLobbyId}
+            />
+          )}
+          {lobby?.started && !lobby.players[player.id].question && (
+            <EnterQuestionPage db={db} player={player} lobby={lobby} />
+          )}
+        </header>
       )}
-    </header>
+    </>
   );
 }
 

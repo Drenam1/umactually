@@ -47,7 +47,7 @@ const StartPage: React.FunctionComponent<IStartPageProps> = (props) => {
         />
       )}
       <div className="lobby-info">
-        {props.player && props.lobby && (
+        {props.player && props.lobby?.players && (
           <>
             <h2>Lobby: {props.lobby.id}</h2>
             <p>Players:</p>

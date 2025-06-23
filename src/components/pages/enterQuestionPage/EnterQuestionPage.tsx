@@ -1,14 +1,22 @@
+import { Lobby } from "../../../models/Lobby";
+import { Player } from "../../../models/Player";
 import { Question } from "../../../models/Question";
-import { getDatabase, ref, set } from "firebase/database";
+import { Database, ref, set } from "firebase/database";
 
-export interface IEnterQuestionPageProps {}
+export interface IEnterQuestionPageProps {
+  db: Database;
+  player: Player;
+  lobby: Lobby;
+}
 
 const EnterQuestionPage: React.FunctionComponent<IEnterQuestionPageProps> = (
   props
 ) => {
   function onsubmitQuestion(question: Question) {
-    const db = getDatabase();
-    const questionsRef = ref(db, `questions/${question.id}`);
+    const questionsRef = ref(
+      props.db,
+      `lobbies/${props.lobby.id}/players/${props.player.id}/question`
+    );
 
     set(questionsRef, question)
       .then(() => {
@@ -30,7 +38,7 @@ const EnterQuestionPage: React.FunctionComponent<IEnterQuestionPageProps> = (
             id: Date.now().toString(),
             question: questionInput,
             answer: answerInput,
-            submittedBy: "Anonymous", // Replace with actual user ID if available
+            submittedBy: props.player.id,
           };
           onsubmitQuestion(question);
         }}
