@@ -3,4 +3,5 @@ export interface Lobby {
   players: any;
   started: boolean;
   questions?: any[];
+  buzzer?: any[];
 }

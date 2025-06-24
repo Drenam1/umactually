@@ -1,3 +1,4 @@
+import GenericHelper from "../../../helpers/generichelper";
 import { Lobby } from "../../../models/Lobby";
 import { Player } from "../../../models/Player";
 import { Question } from "../../../models/Question";
@@ -35,7 +36,7 @@ const EnterQuestionPage: React.FunctionComponent<IEnterQuestionPageProps> = (
           const questionInput = (e.target as HTMLFormElement).question.value;
           const answerInput = (e.target as HTMLFormElement).answer.value;
           const question: Question = {
-            id: Date.now().toString(),
+            id: GenericHelper.generateId(6),
             question: questionInput,
             answer: answerInput,
             submittedBy: props.player.id,

@@ -23,6 +23,7 @@ import { Lobby } from "./models/Lobby";
 import StartPage from "./components/pages/startPage/StartPage";
 import LobbyControlBar from "./components/lobbyControlBar/LobbyControlBar";
 import EnterQuestionPage from "./components/pages/enterQuestionPage/EnterQuestionPage";
+import GamePage from "./components/pages/gamePage/GamePage";
 
 function App() {
   const [auth, setAuth] = React.useState<Auth>();
@@ -153,13 +154,18 @@ function App() {
 
   console.log(player);
   console.log(lobby);
-  const questionsArray = lobby?.players
-    ? Object.values(lobby.players).map((p: any) => p.question)
-    : [];
+  const playersArray: any[] = lobby?.players && Object.values(lobby.players);
+  const questionsArray = (
+    lobby?.players ? playersArray.map((p: any) => p.question) : []
+  )
+    .filter((q: any) => !!q)
+    ?.sort((a: any, b: any) => {
+      return a.id.localeCompare(b.id);
+    });
   console.log("Questions Array:", questionsArray);
 
   return (
-    <>
+    <div className="App">
       {db && player && (
         <header className="App-header">
           <LobbyControlBar
@@ -189,12 +195,41 @@ function App() {
               setLobbyId={setLobbyId}
             />
           )}
-          {lobby?.started && !lobby.players[player.id].question && (
+          {lobby?.started && !player.question && (
             <EnterQuestionPage db={db} player={player} lobby={lobby} />
           )}
+          {lobby?.started &&
+            lobby.players[player.id].question &&
+            !player.question && (
+              <div className="question-submitted">
+                <h2>Question Submitted!</h2>
+                <p>
+                  Waiting for other players to submit their questions before the
+                  round starts.
+                </p>
+                <h3>Waiting for...</h3>
+                <ul>
+                  {playersArray
+                    .filter((player) => !player.question)
+                    .map((p: Player) => (
+                      <li key={p.id}>{p.name}</li>
+                    ))}
+                </ul>
+              </div>
+            )}
+          {lobby?.started &&
+            questionsArray.length === Object.values(lobby?.players).length && (
+              <GamePage
+                db={db}
+                player={player}
+                lobby={lobby}
+                currentQuestion={questionsArray[0]}
+                playerArray={playersArray}
+              />
+            )}
         </header>
       )}
-    </>
+    </div>
   );
 }
 
